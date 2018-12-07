@@ -34,9 +34,9 @@ class Delivery extends BaseObject
 	const REMOVAL       = 'removeme';
 	const PROFILEUPDATE = 'profileupdate';
 
-	public static function execute($cmd, $item_id, $contact_id)
+	public static function execute($cmd, $target_id, $contact_id)
 	{
-		Logger::log('Invoked: ' . $cmd . ': ' . $item_id . ' to ' . $contact_id, Logger::DEBUG);
+		Logger::log('Invoked: ' . $cmd . ': ' . $target_id . ' to ' . $contact_id, Logger::DEBUG);
 
 		$top_level = false;
 		$followup = false;
@@ -44,28 +44,28 @@ class Delivery extends BaseObject
 
 		$items = [];
 		if ($cmd == self::MAIL) {
-			$target_item = DBA::selectFirst('mail', [], ['id' => $item_id]);
+			$target_item = DBA::selectFirst('mail', [], ['id' => $target_id]);
 			if (!DBA::isResult($target_item)) {
 				return;
 			}
 			$uid = $target_item['uid'];
 		} elseif ($cmd == self::SUGGESTION) {
-			$target_item = DBA::selectFirst('fsuggest', [], ['id' => $item_id]);
+			$target_item = DBA::selectFirst('fsuggest', [], ['id' => $target_id]);
 			if (!DBA::isResult($target_item)) {
 				return;
 			}
 			$uid = $target_item['uid'];
 		} elseif ($cmd == self::RELOCATION) {
-			$uid = $item_id;
+			$uid = $target_id;
 			$target_item = [];
 		} else {
-			$item = Item::selectFirst(['parent'], ['id' => $item_id]);
+			$item = Item::selectFirst(['parent'], ['id' => $target_id]);
 			if (!DBA::isResult($item) || empty($item['parent'])) {
 				return;
 			}
 			$parent_id = intval($item['parent']);
 
-			$condition = ['id' => [$item_id, $parent_id], 'moderated' => false];
+			$condition = ['id' => [$target_id, $parent_id], 'moderated' => false];
 			$params = ['order' => ['id']];
 			$itemdata = Item::select([], $condition, $params);
 
@@ -73,7 +73,7 @@ class Delivery extends BaseObject
 				if ($item['id'] == $parent_id) {
 					$parent = $item;
 				}
-				if ($item['id'] == $item_id) {
+				if ($item['id'] == $target_id) {
 					$target_item = $item;
 				}
 				$items[] = $item;
@@ -81,12 +81,12 @@ class Delivery extends BaseObject
 			DBA::close($itemdata);
 
 			if (empty($target_item)) {
-				Logger::log('Item ' . $item_id . "wasn't found. Quitting here.");
+				Logger::log('Item ' . $target_id . "wasn't found. Quitting here.");
 				return;
 			}
 
 			if (empty($parent)) {
-				Logger::log('Parent ' . $parent_id . ' for item ' . $item_id . "wasn't found. Quitting here.");
+				Logger::log('Parent ' . $parent_id . ' for item ' . $target_id . "wasn't found. Quitting here.");
 				return;
 			}
 
@@ -102,7 +102,7 @@ class Delivery extends BaseObject
 			// When commenting too fast after delivery, a post wasn't recognized as top level post.
 			// The count then showed more than one entry. The additional check should help.
 			// The check for the "count" should be superfluous, but I'm not totally sure by now, so we keep it.
-			if ((($parent['id'] == $item_id) || (count($items) == 1)) && ($parent['uri'] === $parent['parent-uri'])) {
+			if ((($parent['id'] == $target_id) || (count($items) == 1)) && ($parent['uri'] === $parent['parent-uri'])) {
 				Logger::log('Top level post');
 				$top_level = true;
 			}
@@ -143,7 +143,7 @@ class Delivery extends BaseObject
 		}
 
 		if (empty($items)) {
-			Logger::log('No delivery data for  ' . $cmd . ' - Item ID: ' .$item_id . ' - Contact ID: ' . $contact_id);
+			Logger::log('No delivery data for  ' . $cmd . ' - Item ID: ' .$target_id . ' - Contact ID: ' . $contact_id);
 		}
 
 		$owner = User::getOwnerDataById($uid);
