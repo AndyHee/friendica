@@ -55,15 +55,14 @@ as the value of $top_child_total (this is done at the end of this file)
 {{/if}}
 {{/if}}
 
-<!-- TODO => Unknow block -->
+{{* TODO => Unknown block *}}
 <div class="wall-item-decor" style="display:none;">
 	{{if $item.star}}
 	<span class="icon s22 star {{$item.isstarred}}" id="starred-{{$item.id}}" title="{{$item.star.starred|escape}}">{{$item.star.starred}}</span>
 	{{/if}}
 	{{if $item.lock}}<span class="navicon lock fakelink" onclick="lockview(event,{{$item.id}});" title="{{$item.lock|escape}}"></span><span class="fa fa-lock"></span>{{/if}}
 </div>
-<!-- ./TODO => Unknow block -->
-
+{{* /TODO => Unknown block *}}
 
 
 {{* Use a different div container in dependence max thread-level = 7 *}}
@@ -203,7 +202,17 @@ as the value of $top_child_total (this is done at the end of this file)
 
 			<div class="additional-info text-muted">
 				<div id="wall-item-ago-{{$item.id}}" class="wall-item-ago">
-					<small><a href="{{$item.plink.orig}}"><span class="time" title="{{$item.localtime|escape}}" data-toggle="tooltip"><time class="dt-published" datetime="{{$item.localtime}}">{{$item.ago}}</time></span></a></small>
+					<small>
+						<a href="{{$item.plink.orig}}">
+							<span class="time" title="{{$item.localtime|escape}}" data-toggle="tooltip">
+								<time class="dt-published" datetime="{{$item.localtime}}">{{$item.ago}}</time>
+							</span>
+						</a>
+						{{if $item.owner_self}}
+							&bullet;
+							{{include file="sub/delivery_count.tpl" delivery=$item.delivery}}
+						{{/if}}
+					</small>
 				</div>
 
 				{{if $item.location}}
@@ -220,7 +229,14 @@ as the value of $top_child_total (this is done at the end of this file)
 			<h5 class="media-heading">
 				<a href="{{$item.profile_url}}" title="{{$item.linktitle|escape}}" class="wall-item-name-link userinfo"><span>{{$item.name|escape}}</span></a>
 				<p class="text-muted">
-					<small><a class="time" href="{{$item.plink.orig}}"><span class="wall-item-ago">{{$item.ago}}</span></a> {{if $item.location}}&nbsp;&mdash;&nbsp;({{$item.location}}){{/if}}</small>
+					<small>
+						<a class="time" href="{{$item.plink.orig}}"><span class="wall-item-ago">{{$item.ago}}</span></a>
+						{{if $item.location}}&nbsp;&mdash;&nbsp;({{$item.location}}){{/if}}
+						{{if $item.owner_self}}
+							&bullet;
+							{{include file="sub/delivery_count.tpl" delivery=$item.delivery}}
+						{{/if}}
+					</small>
 				</p>
 			</h5>
 		</div>
@@ -233,7 +249,14 @@ as the value of $top_child_total (this is done at the end of this file)
 			<h5 class="media-heading">
 				<a href="{{$item.profile_url}}" title="{{$item.linktitle|escape}}" class="wall-item-name-link userinfo"><span class="fakelink">{{$item.name|escape}}</span></a>
 				<span class="text-muted">
-					<small><a class="time" href="{{$item.plink.orig}}" title="{{$item.localtime|escape}}" data-toggle="tooltip">{{$item.ago}}</a> {{if $item.location}}&nbsp;&mdash;&nbsp;({{$item.location}}){{/if}}</small>
+					<small>
+						<a class="time" href="{{$item.plink.orig}}" title="{{$item.localtime|escape}}" data-toggle="tooltip">{{$item.ago}}</a>
+						{{if $item.location}}&nbsp;&mdash;&nbsp;({{$item.location}}){{/if}}
+						{{if $item.owner_self}}
+							&bullet;
+							{{include file="sub/delivery_count.tpl" delivery=$item.delivery}}
+						{{/if}}
+					</small>
 				</span>
 			</h5>
 		</div>
