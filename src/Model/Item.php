@@ -1803,7 +1803,7 @@ class Item extends BaseObject
 			self::updateThread($parent_id);
 		}
 
-		ItemDeliveryData::insert($item['id'], $delivery_data);
+		ItemDeliveryData::insert($current_post, $delivery_data);
 
 		DBA::commit();
 
